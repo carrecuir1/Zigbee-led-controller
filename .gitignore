@@ -1,0 +1,14 @@
+# Ignore any build/ directory anywhere in the repo
+build/
+
+# Or if you only want to ignore top-level build/
+# /build/
+
+# Ignore VS Code config
+.vscode/
+
+# Ignore object files
+*.obj
+
+# Ignore debug folder (anywhere)
+debug/

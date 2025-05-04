@@ -1,0 +1,3 @@
+D:/Repos/Personal/MCU/STM32WB55-Leds-Strip-Zigbee/CMakeFiles/STM32WB55-Leds-Strip-Zigbee.dir
+D:/Repos/Personal/MCU/STM32WB55-Leds-Strip-Zigbee/CMakeFiles/edit_cache.dir
+D:/Repos/Personal/MCU/STM32WB55-Leds-Strip-Zigbee/CMakeFiles/rebuild_cache.dir

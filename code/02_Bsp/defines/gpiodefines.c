@@ -1,0 +1,12 @@
+#include "gpiodefines.h"
+
+
+const sGPIO_t GPIODefinition[GPIO_QTY] = {
+//Port  //Pin       //Mode              //Pull        //Speed              //State           //InitValue
+
+/***LEDS***/
+{GPIOB, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, GPIO_STATE_ACTIVE, GPIO_VAL_0}, //LED1
+{GPIOB, GPIO_PIN_0, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, GPIO_STATE_ACTIVE, GPIO_VAL_0}, //LED2
+{GPIOB, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, GPIO_STATE_ACTIVE, GPIO_VAL_0}  //LED3
+
+};
