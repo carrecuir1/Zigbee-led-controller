@@ -192,9 +192,7 @@
 typedef enum
 {
   CFG_TIM_PROC_ID_ISR,
-  /* USER CODE BEGIN CFG_TimProcID_t */
-
-  /* USER CODE END CFG_TimProcID_t */
+  CFG_TIM_WAIT_BEOFRE_READ_ATTR,
 } CFG_TimProcID_t;
 
 /******************************************************************************
@@ -278,7 +276,18 @@ typedef enum
 #define APPLI_PRINT_FILE_FUNC_LINE    0
 
 /* USER CODE BEGIN Defines */
-
+/******************************************************************************
+ * User interaction
+ * When CFG_LED_SUPPORTED is set, LEDS are activated if requested
+ * When CFG_BUTTON_SUPPORTED is set, the push button are activated if requested
+ ******************************************************************************/
+#if (CFG_FULL_LOW_POWER == 1)
+#define CFG_LED_SUPPORTED         0
+#define CFG_BUTTON_SUPPORTED      0
+#else
+#define CFG_LED_SUPPORTED         1
+#define CFG_BUTTON_SUPPORTED      1
+#endif /* CFG_FULL_LOW_POWER */
 /* USER CODE END Defines */
 
 /******************************************************************************
@@ -289,12 +298,24 @@ typedef enum
  * Each Id shall be in the range 0..31
  */
 
+#define CFG_NB_OF_PAGE                          (16U)
+#define CFG_EE_BANK0_SIZE                       (CFG_NB_OF_PAGE * HW_FLASH_PAGE_SIZE) 
+#define CFG_NVM_BASE_ADDRESS                    ( 0x70000U )
+#define CFG_EE_BANK0_MAX_NB                     (1000U)                  // In U32 words
+#define ST_PERSIST_MAX_ALLOC_SZ                 (4U*CFG_EE_BANK0_MAX_NB) // Max data in bytes
+#define ST_PERSIST_FLASH_DATA_OFFSET            (4U)
+#define ZIGBEE_DB_START_ADDR                    (0U)
+#define CFG_EE_AUTO_CLEAN                       (1U)
+
 typedef enum
 {
   CFG_TASK_NOTIFY_FROM_M0_TO_M4,
   CFG_TASK_REQUEST_FROM_M0_TO_M4,
   CFG_TASK_ZIGBEE_NETWORK_FORM,
   CFG_TASK_SYSTEM_HCI_ASYNCH_EVT,
+  CFG_TASK_BUTTON_SW1,
+  CFG_TASK_BUTTON_SW2,
+  CFG_TASK_BUTTON_SW3,
 #if (CFG_USB_INTERFACE_ENABLE != 0)
   CFG_TASK_VCP_SEND_DATA,
 #endif /* (CFG_USB_INTERFACE_ENABLE != 0) */

@@ -1,4 +1,5 @@
 #include "lpuart.h"
+#include "stm32wbxx_it.h"
 
 #warning hw_uart uses these for some reason
 UART_HandleTypeDef hlpuart1;
@@ -59,7 +60,6 @@ retcode_t MX_DMA_Init(void)
   /* DMA1_Channel3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
-  
 
   return LPUART_SUCCESS;
 }

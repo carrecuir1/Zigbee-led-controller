@@ -1,5 +1,17 @@
+
 #include "main.h"
+
 #include <stdbool.h>
+
+#include "dbg_trace.h"
+#include "hw_conf.h"
+#include "otp.h"
+#include "stm32_seq.h"
+#include "stm32wbxx_hal.h"
+
+// Applications
+#include "callbackmanager.h"
+#include "ledsstripmanager.h"
 
 // Drivers
 #include "cpudrv.h"
@@ -7,19 +19,13 @@
 #include "ledstripdrv.h"
 
 // Peripherals
-#include "cpu.h"
 #include "ipcc.h"
 #include "usart.h"
 #include "lpuart.h"
 #include "rtc.h"
 #include "rng.h"
+#include "pwm.h"
 
-#include "dbg_trace.h"
-#include "hw_conf.h"
-#include "otp.h"
-#include "stm32_seq.h"
-
-#include "LED_Functions.h"
 #include "retcode.h"
 
 typedef struct sFlag_ms_counter{
@@ -38,130 +44,108 @@ sFlag_ms_counter_t mFlagMsCounter = {0};
 
 uint8_t brightness = 45;
 uint8_t color_R, color_G, color_B = 0;
-uint8_t time_Level = 1;
+uint8_t time_Level = 50;
 
 bool rainbow_Bool = false;
 bool LED_bool = false;
 bool breathe_Bool = false;
 bool blink_Bool = false;
 
-static int main_init();
 static void timing_callback_routine();
 
-static int main_init()
+int main(void)
 {
-  if(IS_FAILURE(CPUDriver_Open()))
-    return -1;
-
-  if(IS_FAILURE(IPCC_Open()))
-    return -1;
-
-  if(IS_FAILURE(GPIODriver_Open()))
-    return -1;
-
-  if(IS_FAILURE(LedstripDriver_Open()))
-    return -1;
-
-  if(IS_FAILURE(LPUART_Open()))
-    return -1;
-
-  if(IS_FAILURE(USART_Open()))
-    return -1;
-
-  if(IS_FAILURE(RTC_Open()))
-    return -1;
+  /**
+     * The OPTVERR flag is wrongly set at power on
+     * It shall be cleared before using any HAL_FLASH_xxx() api
+     */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
     
-  if(IS_FAILURE(RNG_Open()))
-    return -1;
+  if(IS_FAILURE(CPUDriver_Open())) return -1;
+  if(IS_FAILURE(IPCC_Open())) return -1;
+  if(IS_FAILURE(GPIODriver_Open())) return -1;
+  if(IS_FAILURE(LPUART_Open())) return -1;
+  if(IS_FAILURE(USART_Open())) return -1;
+  if(IS_FAILURE(LedstripDriver_Open())) return -1;
+  if(IS_FAILURE(RTC_Open())) return -1;
+  if(IS_FAILURE(RNG_Open())) return -1;
+  if(IS_FAILURE(LEDSSTRIPManager_Init())) return -1;
 
   DbgOutputInit();
   DbgTraceInit();
 
   MX_APPE_Init();
-}
-
-int main(void)
-{
-
-  if(main_init() < 0)
-    return -1;
 
   printf("Starting app\r\n");
   while (1)
   {
-    /* USER CODE END WHILE */
     MX_APPE_Process();
-
-    /* USER CODE BEGIN 3 */
-    // check which bool is on so that the right function kan be turned on
-    //  if(LED_bool)
-    //  {
-    //  	Set_LED(0, color_R, color_G, color_B);
-    //  	Set_LED(1, color_R, color_G, color_B);
-    //  	Set_LED(2, color_R, color_G, color_B);
-    //  	Set_Brightness(brightness);
-    //  	Send_To_LEDS();
-    //  }else if(breathe_Bool)
-    //  {
-    //  	Fade_In_Effect(0, brightness, time_Level, 1, color_R, color_G, color_B);
-    //  }else if(blink_Bool)
-    //  {
-    //  	Blink_Effect(time_Level, brightness, color_R, color_G, color_B);
-    //  }else if(rainbow_Bool)
-    //  {
-    //  	Rainbow_Effect(brightness, time_Level);
-    //  }else
-    //  	Turn_Off_LEDS();
-    Rainbow_Effect(brightness, time_Level);
-
-
+    // if(LED_bool)
+    // {
+    // 	Set_LED(0, color_R, color_G, color_B);
+    // 	Set_LED(1, color_R, color_G, color_B);
+    // 	Set_LED(2, color_R, color_G, color_B);
+    // 	Set_Brightness(brightness);
+    // 	Send_To_LEDS();
+    // }else if(breathe_Bool)
+    // {
+    // 	Fade_In_Effect(0, brightness, time_Level, 1, color_R, color_G, color_B);
+    // }else if(blink_Bool)
+    // {
+    // 	Blink_Effect(time_Level, brightness, color_R, color_G, color_B);
+    // }else if(rainbow_Bool)
+    // {
+    // 	Rainbow_Effect(brightness, time_Level);
+    // }else
+    // 	Turn_Off_LEDS();
+    // Rainbow_Effect(brightness, time_Level);
+    timing_callback_routine();
   }
-  /* USER CODE END 3 */
 }
 
 static void timing_callback_routine()
 {
   if(mFlagMsCounter.Each1ms){
     mFlagMsCounter.Each1ms = 0;
-    mCallbackMan.RunEach1ms();
+    Callback_RunEach1ms();
   }
 
   if(mFlagMsCounter.Each10ms){
     mFlagMsCounter.Each10ms = 0;
-    mCallbackMan.RunEach10ms();
+    Callback_RunEach10ms();
   }
 
   if(mFlagMsCounter.Each25ms){
     mFlagMsCounter.Each25ms = 0;
-    mCallbackMan.RunEach25ms();
+    Callback_RunEach25ms();
   }
 
   if(mFlagMsCounter.Each50ms){
     mFlagMsCounter.Each50ms = 0;
-    mCallbackMan.RunEach50ms();
+    Callback_RunEach50ms();
   }
 
   if(mFlagMsCounter.Each100ms){
     mFlagMsCounter.Each100ms = 0;
-    mCallbackMan.RunEach100ms();
+    Callback_RunEach100ms();
   }
 
   if(mFlagMsCounter.Each250ms){
     mFlagMsCounter.Each250ms = 0;
-    mCallbackMan.RunEach250ms();
-    mGpioDrv.Toggle(GPIO_LED1);
+    Callback_RunEach250ms();
+    GPIODriver_Toggle(GPIO_LED1);
   }
 
   if(mFlagMsCounter.Each500ms){
     mFlagMsCounter.Each500ms = 0;
-    mCallbackMan.RunEach500ms();
-    mGpioDrv.Toggle(GPIO_LED2);
+    Callback_RunEach500ms();
+    GPIODriver_Toggle(GPIO_LED2);
   }
 
   if(mFlagMsCounter.Each1000ms){
     mFlagMsCounter.Each1000ms = 0;
-    mCallbackMan.RunEach1000ms();
-    mGpioDrv.Toggle(GPIO_LED3);
+    Callback_RunEach1000ms();
+    GPIODriver_Toggle(GPIO_LED3);
   }
 }
 

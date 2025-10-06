@@ -10,6 +10,7 @@ enable_language(C ASM)
 target_compile_definitions(stm32WB55RX INTERFACE 
     DEBUG
 	USE_HAL_DRIVER 
+    USE_STM32WBXX_NUCLEO
 	STM32WB55xx
     ZIGBEE_WB
 )

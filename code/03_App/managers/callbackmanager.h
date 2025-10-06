@@ -3,6 +3,7 @@
 
 #include "stm32wbxx_hal.h"
 #include "retcode.h"
+#include "app_zigbee.h"
 
 #define CALLBACK_MAX 15
 
@@ -28,11 +29,11 @@ typedef enum retcode_callback
 typedef uint8_t FuncNbr;
 typedef void (*void_callback_t)(void);
 
-typedef struct {
-  void_callback_t funcArr[CALLBACK_MAX];
-  FuncNbr         nbr;
-} sTimingCallback_t;
+// Zigbee
+typedef void (*zigbee_onoff_callback_t)(eZigbeeEndpoints_t, eZigbeeOnOffType_t);
+typedef void (*zigbee_levelcontrol_callback_t)(eZigbeeEndpoints_t, eZigbeeLevelControlType_t, uint8_t);
 
+// Timing callbacks
 void Callback_RegisterEach1ms(void_callback_t callback);
 void Callback_RunEach1ms(void);
 void Callback_RegisterEach10ms(void_callback_t callback);
@@ -49,5 +50,11 @@ void Callback_RegisterEach500ms(void_callback_t callback);
 void Callback_RunEach500ms(void);
 void Callback_RegisterEach1000ms(void_callback_t callback);
 void Callback_RunEach1000ms(void);
+
+// Zigbee callbacks
+void Callback_RegisterZigbeeOnOff(zigbee_onoff_callback_t callback);
+void Callback_RunZigbeeOnOff(eZigbeeEndpoints_t endpoint, eZigbeeOnOffType_t type);
+void Callback_RegisterZigbeeLevelControl(zigbee_levelcontrol_callback_t callback);
+void Callback_RunZigbeeLevelControl(eZigbeeEndpoints_t endpoint, eZigbeeLevelControlType_t type, uint8_t level);
 
 #endif /* __MANAGERS_CALLBACKMANAGER_H_ */

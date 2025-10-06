@@ -32,6 +32,7 @@
 #include "dbg_trace.h"
 #include "shci.h"
 #include "otp.h"
+#include "stm32wbxx_nucleo.h"
 
 /* Private includes -----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -91,13 +92,14 @@ static void APPE_SysStatusNot(SHCI_TL_CmdStatus_t status);
 static void APPE_SysUserEvtRx(void * pPayload);
 static void APPE_SysEvtReadyProcessing(void);
 static void APPE_SysEvtError(SCHI_SystemErrCode_t ErrorCode);
-// #if (CFG_HW_LPUART1_ENABLED == 1)
-// extern void MX_LPUART1_UART_Init(void);
-// #endif /* CFG_HW_LPUART1_ENABLED == 1 */
-// #if (CFG_HW_USART1_ENABLED == 1)
-// extern void MX_USART1_UART_Init(void);
-// #endif /* CFG_HW_USART1_ENABLED == 1 */
+#if (CFG_HW_LPUART1_ENABLED == 1)
+extern void MX_LPUART1_UART_Init(void);
+#endif /* CFG_HW_LPUART1_ENABLED == 1 */
+#if (CFG_HW_USART1_ENABLED == 1)
+extern void MX_USART1_UART_Init(void);
+#endif /* CFG_HW_USART1_ENABLED == 1 */
 static void Init_Rtc(void);
+static void Button_Init(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -132,9 +134,8 @@ void MX_APPE_Init(void)
 
   HW_TS_Init(hw_ts_InitMode_Full, &hrtc); /**< Initialize the TimerServer */
 
-/* USER CODE BEGIN APPE_Init_1 */
-
-/* USER CODE END APPE_Init_1 */
+  Button_Init();
+  
   appe_Tl_Init();	/* Initialize all transport layers */
 
   /**
@@ -143,6 +144,7 @@ void MX_APPE_Init(void)
    * This system event is received with APPE_SysUserEvtRx()
    */
 /* USER CODE BEGIN APPE_Init_2 */
+
 
 /* USER CODE END APPE_Init_2 */
 
@@ -609,6 +611,46 @@ void DbgOutputTraces(uint8_t *p_data, uint16_t size, void (*cb)(void))
   return;
 }
 #endif /* CFG_DEBUG_TRACE != 0 */
+
+static void Button_Init( void )
+{
+#if (CFG_BUTTON_SUPPORTED == 1U)
+  /**
+   * Button Initialization
+   */
+    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
+    BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
+#endif
+
+    return;
+}
+
+/* USER CODE BEGIN FD_WRAP_FUNCTIONS */
+/**
+  * @brief This function manage the Push button action
+  * @param  GPIO_Pin : GPIO pin which has been activated
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  switch (GPIO_Pin) {
+  case BUTTON_SW1_PIN:
+    UTIL_SEQ_SetTask(1U << CFG_TASK_BUTTON_SW1,CFG_SCH_PRIO_1);
+    break;
+
+  case BUTTON_SW2_PIN:
+    UTIL_SEQ_SetTask(1U << CFG_TASK_BUTTON_SW2,CFG_SCH_PRIO_1);
+    break;
+
+  case BUTTON_SW3_PIN:
+    UTIL_SEQ_SetTask(1U << CFG_TASK_BUTTON_SW3,CFG_SCH_PRIO_1);
+    break;
+
+  default:
+    break;
+  }
+}
 /* USER CODE BEGIN FD_WRAP_FUNCTIONS */
 
 /* USER CODE END FD_WRAP_FUNCTIONS */

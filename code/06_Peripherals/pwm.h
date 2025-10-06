@@ -4,6 +4,10 @@
 #include "stm32wbxx_hal.h"
 #include "retcode.h"
 
+#define PWM_LEDS_PERIOD 77
+#define PWM_LEDS_HIGH (uint32_t)(PWM_LEDS_PERIOD * 0.64)
+#define PWM_LEDS_LOW (uint32_t)(PWM_LEDS_PERIOD * 0.32)
+
 #define GENERATE_RETCODE_PWM(severity, code) (GENERATE_RETCODE(severity, HIERARCHY_PERIPHERAL, MODULE_PWM, code))
 #define GENERATE_PWM_SUCCESS(code) (GENERATE_RETCODE_PWM(SEVERITY_SUCCESS, code))
 #define GENERATE_PWM_INFO(code) (GENERATE_RETCODE_PWM(SEVERITY_INFO, code))

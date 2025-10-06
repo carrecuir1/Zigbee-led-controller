@@ -172,15 +172,7 @@ SECTIONS
   .ARM.attributes 0       : { *(.ARM.attributes) }
   MAPPING_TABLE (NOLOAD) : { *(MAPPING_TABLE) } >RAM_SHARED
   MB_MEM1 (NOLOAD)       : { *(MB_MEM1) } >RAM_SHARED
-
-  /* used by the startup to initialize .MB_MEM2 data */
-  _siMB_MEM2 = LOADADDR(.MB_MEM2);
-  .MB_MEM2 :
-  {
-    _sMB_MEM2 = . ;
-    *(MB_MEM2) ;
-    _eMB_MEM2 = . ;
-  } >RAM_SHARED AT> FLASH
+  MB_MEM2 (NOLOAD)       : { _sMB_MEM2 = . ; *(MB_MEM2) ; _eMB_MEM2 = . ; } >RAM_SHARED
 }
 
 

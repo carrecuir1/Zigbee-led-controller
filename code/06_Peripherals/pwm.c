@@ -8,10 +8,6 @@
 #define PWM_TIMER_OCMODE_LEDS TIM_OCMODE_PWM1
 #define PWM_DMA_CHANNEL_LEDS DMA1_Channel1
 #define PWM_DMA_REQUEST_LEDS DMA_REQUEST_TIM1_CH1
-#define PWM_LEDS_PERIOD 80 - 1
-
-#define PWM_LEDS_HIGH (uint32_t)(PWM_LEDS_PERIOD * 0.64)
-#define PWM_LEDS_LOW (uint32_t)(PWM_LEDS_PERIOD * 0.32)
 
 TIM_HandleTypeDef htimpwm_leds;
 DMA_HandleTypeDef hdma_timpwm_leds;
@@ -43,6 +39,7 @@ retcode_t PWM_Send(pwm_type_t pChannel, uint8_t *pData, uint16_t pLength)
     {
       HAL_TIM_PWM_Start_DMA(&htimpwm_leds, PWM_TIMER_CHANNEL_LEDS, (uint32_t *)pData, pLength);
       mDataFlagLeds = PWM_FLAG_SENDING;
+      ret = PWM_SUCCESS;
     }
     else
     {
@@ -66,14 +63,14 @@ retcode_t PWM_Get_PWM_Status(pwm_type_t pChannel)
 }
 
 // HAL_Callback
-// void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-// {
-//   if (htim == &htimpwm_leds)
-//   {
-//     HAL_TIM_PWM_Stop_DMA(&htimpwm_leds, PWM_TIMER_CHANNEL_LEDS);
-//     mDataFlagLeds = PWM_FLAG_IDLE;
-//   }
-// }
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim == &htimpwm_leds)
+  {
+    HAL_TIM_PWM_Stop_DMA(&htimpwm_leds, PWM_TIMER_CHANNEL_LEDS);
+    mDataFlagLeds = PWM_FLAG_IDLE;
+  }
+}
 
 void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
 {
@@ -86,7 +83,6 @@ void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
 // Private functions
 static retcode_t MX_TIM_LEDS_Init(void)
 {
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
@@ -99,15 +95,6 @@ static retcode_t MX_TIM_LEDS_Init(void)
   htimpwm_leds.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htimpwm_leds.Init.RepetitionCounter = 0;
   htimpwm_leds.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  // if (HAL_TIM_Base_Init(&htimpwm_leds) != HAL_OK)
-  // {
-  //   return PWM_ERROR_INIT;
-  // }
-  // sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  // if (HAL_TIM_ConfigClockSource(&htimpwm_leds, &sClockSourceConfig) != HAL_OK)
-  // {
-  //   return PWM_ERROR_INIT;
-  // }
   if (HAL_TIM_PWM_Init(&htimpwm_leds) != HAL_OK)
   {
     return PWM_ERROR_INIT;
@@ -175,11 +162,6 @@ void DMA1_Channel1_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(&hdma_timpwm_leds);
 }
-
-// void DMA2_Channel1_IRQHandler(void)
-// {
-//   HAL_DMA_IRQHandler(&hdma_timpwm_leds);
-// }
 
 /**
 * @brief TIM_PWM MSP Initialization

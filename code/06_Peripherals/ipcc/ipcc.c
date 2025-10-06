@@ -1,4 +1,6 @@
 #include "ipcc.h"
+
+#include "main.h"
 #include "stm32wbxx_hal_ipcc.h"
 
 IPCC_HandleTypeDef hipcc;

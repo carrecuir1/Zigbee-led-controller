@@ -1,4 +1,5 @@
 #include "usart.h"
+#include "stm32wbxx_it.h"
 
 #warning hw_uart uses these for some reason
 UART_HandleTypeDef huart1;

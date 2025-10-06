@@ -1,5 +1,20 @@
 #include "callbackmanager.h"
 
+typedef struct {
+  void_callback_t funcArr[CALLBACK_MAX];
+  FuncNbr         nbr;
+} sTimingCallback_t;
+
+typedef struct {
+  zigbee_onoff_callback_t funcArr[CALLBACK_MAX];
+  FuncNbr         nbr;
+} sZigbeeOnOffCallback_t;
+
+typedef struct {
+  zigbee_levelcontrol_callback_t funcArr[CALLBACK_MAX];
+  FuncNbr         nbr;
+} sZigbeeLevelControlCallback_t;
+
 static sTimingCallback_t mEach1msCallbacks    = {0};       // Callback each 1ms
 static sTimingCallback_t mEach10msCallbacks   = {0};       // Callback each 10ms
 static sTimingCallback_t mEach25msCallbacks   = {0};       // Callback each 25ms
@@ -8,6 +23,9 @@ static sTimingCallback_t mEach100msCallbacks  = {0};       // Callback each 100m
 static sTimingCallback_t mEach250msCallbacks  = {0};       // Callback each 250ms
 static sTimingCallback_t mEach500msCallbacks  = {0};       // Callback each 500ms
 static sTimingCallback_t mEach1000msCallbacks = {0};       // Callback each 1000ms
+
+static sZigbeeOnOffCallback_t mOnOffCallbacks  = {0};                     // Callback OnOff
+static sZigbeeLevelControlCallback_t mLevelControlCallbacks = {0};        // Callback LevelControl
 
 void Callback_RegisterEach1ms(void_callback_t callback){
   if(mEach1msCallbacks.nbr == CALLBACK_MAX)
@@ -103,4 +121,29 @@ void Callback_RegisterEach1000ms(void_callback_t callback){
 void Callback_RunEach1000ms(void){
   for(uint8_t i = 0; i < mEach1000msCallbacks.nbr;i++)
     mEach1000msCallbacks.funcArr[i]();
+}
+
+// Zigbee 
+void Callback_RegisterZigbeeOnOff(zigbee_onoff_callback_t callback){
+  if(mOnOffCallbacks.nbr == CALLBACK_MAX)
+    return;
+  mOnOffCallbacks.funcArr[mOnOffCallbacks.nbr] = callback;
+  mOnOffCallbacks.nbr++;
+}
+
+void Callback_RunZigbeeOnOff(eZigbeeEndpoints_t endpoint, eZigbeeOnOffType_t type){
+  for(uint8_t i = 0; i < mOnOffCallbacks.nbr;i++)
+    mOnOffCallbacks.funcArr[i](endpoint, type);
+}
+
+void Callback_RegisterZigbeeLevelControl(zigbee_levelcontrol_callback_t callback){
+  if(mLevelControlCallbacks.nbr == CALLBACK_MAX)
+    return;
+  mLevelControlCallbacks.funcArr[mLevelControlCallbacks.nbr] = callback;
+  mLevelControlCallbacks.nbr++;
+}
+
+void Callback_RunZigbeeLevelControl(eZigbeeEndpoints_t endpoint, eZigbeeLevelControlType_t type, uint8_t level){
+  for(uint8_t i = 0; i < mLevelControlCallbacks.nbr;i++)
+    mLevelControlCallbacks.funcArr[i](endpoint, type, level);
 }
